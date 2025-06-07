@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import kotlin.math.roundToInt
 
-
-
 @Composable
 fun LiveCompassWidget() {
     val context = LocalContext.current

@@ -33,21 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.andrespelaezp.composeexperiments.experiments.swipes.SwipeableEmailCard
-import com.andrespelaezp.composeexperiments.experiments.toggle_bubble.LiveCompassWidget
-import com.andrespelaezp.composeexperiments.experiments.toggle_bubble.MarkdownBubble
-import com.andrespelaezp.composeexperiments.experiments.toggle_bubble.SpringyToggle
+import com.andrespelaezp.composeexperiments.experiments.canary_build.ExpressiveComponentsExample
 import com.andrespelaezp.composeexperiments.expressive.BoldExtendedFab
 import com.andrespelaezp.composeexperiments.expressive.DashboardMetricCard
 import com.andrespelaezp.composeexperiments.expressive.ExpressiveAppBarScreen
@@ -104,6 +97,14 @@ class MainActivity : ComponentActivity() {
                                 selected = false,
                                 onClick = {
                                     navController.navigate("notifications")
+                                    closeDrawer(scope, drawerState)
+                                }
+                            )
+                            NavigationDrawerItem(
+                                label = { Text("Canary Preview") },
+                                selected = false,
+                                onClick = {
+                                    navController.navigate("canary")
                                     closeDrawer(scope, drawerState)
                                 }
                             )
@@ -180,6 +181,13 @@ class MainActivity : ComponentActivity() {
                             composable("notifications") {
                                 Column {
                                     NotificationScreen()
+                                }
+                            }
+                            composable("canary") {
+                                Column {
+                                    ExpressiveComponentsExample() {
+                                        // Handle FAB click here
+                                    }
                                 }
                             }
                         }

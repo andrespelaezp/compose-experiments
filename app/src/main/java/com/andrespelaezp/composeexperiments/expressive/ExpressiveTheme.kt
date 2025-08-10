@@ -11,6 +11,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 
 // Define some expressive colors
 val ExpressivePink = Color(0xFFE91E63)
@@ -97,6 +102,20 @@ val ExpressiveShapes = Shapes(
     medium = RoundedCornerShape(20.dp), // More pronounced rounding
     large = RoundedCornerShape(topStart = 32.dp, topEnd = 8.dp, bottomStart = 8.dp, bottomEnd = 32.dp) // Unique rounding
 )
+
+// Expressive Animation Specs
+val bouncySpring = spring<Float>(
+    dampingRatio = Spring.DampingRatioMediumBouncy,
+    stiffness = Spring.StiffnessLow
+)
+
+val gentleSpring = spring<Float>(
+    dampingRatio = Spring.DampingRatioNoBouncy,
+    stiffness = Spring.StiffnessVeryLow
+)
+
+val quickTween = tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing)
+val expressiveTween = tween<Float>(durationMillis = 600, easing = LinearOutSlowInEasing)
 
 @Composable
 fun MyCoolExpressiveTheme(

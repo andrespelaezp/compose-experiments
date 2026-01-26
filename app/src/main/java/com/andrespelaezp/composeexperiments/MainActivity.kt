@@ -41,6 +41,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.andrespelaezp.composeexperiments.experiments.canary_build.ExpressiveComponentsExample
+import com.andrespelaezp.composeexperiments.experiments.carousel.CircularCarouselList
 import com.andrespelaezp.composeexperiments.expressive.BoldExtendedFab
 import com.andrespelaezp.composeexperiments.expressive.DashboardMetricCard
 import com.andrespelaezp.composeexperiments.expressive.ExpressiveAppBarScreen
@@ -174,6 +175,17 @@ class MainActivity : ComponentActivity() {
                                     title = "Cybernetic Dawn",
                                     subtitle = "In a world of neon and steel, a new consciousness arises. Can humanity adapt?",
                                     imageUrl = null, // e.g. R.drawable.my_scifi_image
+                                    onActionClick = {},
+                                    onBookmarkClick = {}
+                                )
+                            }
+                            composable("carousel") { backStackEntry ->
+                                CircularCarouselList(
+                                    category = "Adventure",
+                                    title = "Uncharted Realms",
+                                    subtitle = "Journey beyond the known horizon and uncover secrets of ancient civilizations.",
+                                    // Replace with a valid drawable resource in your project or null
+                                    imageUrl = null, // e.g. R.drawable.my_adventure_image
                                     onActionClick = {},
                                     onBookmarkClick = {}
                                 )

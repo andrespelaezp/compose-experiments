@@ -1,5 +1,10 @@
 package com.andrespelaezp.composeexperiments.experiments.canary_build
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -19,11 +24,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
+import androidx.core.content.ContextCompat
 import com.andrespelaezp.composeexperiments.expressive.MyCoolExpressiveTheme
+import com.andrespelaezp.composeexperiments.notifications.LiveUpdateNotificationManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExpressiveComponentsExample(onFabClick: () -> Unit) {
@@ -39,6 +50,35 @@ fun ExpressiveComponentsExample(onFabClick: () -> Unit) {
         animationSpec = bouncySpring,
         label = "FAB Scale",
         finishedListener = { fabClicked = false }
+    )
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var notificationProgress by remember { mutableIntStateOf(0) }
+    var isNotificationActive by remember { mutableStateOf(false) }
+
+
+    var hasNotificationPermission by remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        } else {
+            mutableStateOf(true)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasNotificationPermission = isGranted
+            if (!isGranted) {
+                println("Notification permission denied.")
+            }
+        }
     )
 
     MyCoolExpressiveTheme {
@@ -96,7 +136,7 @@ fun ExpressiveComponentsExample(onFabClick: () -> Unit) {
                         if (isCardExpanded) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                "Expanded content appears with a smooth transition, utilizing a tween animation. " + // Updated comment
+                                "Expanded content appears with a smooth transition, utilizing a tween animation. " +
                                         "The elevation also changes with a 'bouncySpring' when expanded and 'gentleSpring' when collapsed.",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -105,6 +145,55 @@ fun ExpressiveComponentsExample(onFabClick: () -> Unit) {
                 }
 
                 PressableExpressiveButton()
+
+                Button(
+                    onClick = {
+                        if (isNotificationActive) {
+                            LiveUpdateNotificationManager.cancelNotification(context)
+                            notificationProgress = 0
+                            isNotificationActive = false
+                        } else {
+                            isNotificationActive = true
+                            notificationProgress = 0
+                            LiveUpdateNotificationManager.createNotificationChannel(context) // Ensure channel is created
+                            coroutineScope.launch {
+                                while (notificationProgress < 100 && isNotificationActive) {
+                                    LiveUpdateNotificationManager.showProgressNotification(
+                                        context,
+                                        progress = notificationProgress,
+                                        title = "Simulated Download",
+                                        contentText = "Downloading file...",
+                                        showPermissionCheck = {
+                                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                    )
+                                    delay(1000) // Update every second
+                                    notificationProgress += 10
+                                }
+                                if (isNotificationActive) { // Check if still active before showing completion
+                                    LiveUpdateNotificationManager.showProgressNotification(
+                                        context,
+                                        progress = 100,
+                                        title = "Download Complete",
+                                        contentText = "File downloaded successfully!",
+                                        showPermissionCheck = {
+                                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                    )
+                                }
+                                isNotificationActive = false // Reset after completion or cancellation
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                ) {
+                    Icon(
+                        Icons.Filled.Notifications,
+                        contentDescription = if (isNotificationActive) "Cancel Notification" else "Start Live Notification"
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(if (isNotificationActive) "Cancel Live Notification (${notificationProgress}%)" else "Start Live Notification")
+                }
             }
         }
     }
